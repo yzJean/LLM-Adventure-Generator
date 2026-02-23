@@ -14,7 +14,7 @@ class StoryJobResponse(BaseModel):
     error: Optional[str] = None
 
     class Config:
-        from_attributes = True
+        from_attributes = True # how Pydantic reads data from the SQLAlchemy object (using attribute access like job.job_id instead of dict access like job["job_id"]
         
 class StoryJobCreate(StoryJobBase):
     pass

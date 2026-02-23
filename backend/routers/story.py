@@ -11,6 +11,7 @@ from models.job import StoryJob
 from schemas.story import (
     CompleteStoryResponse, CompleteStoryNodeResponse, CreateStoryRequest)
 from schemas.job import StoryJobResponse
+from core.story_generator import StoryGenerator
 
 
 router = APIRouter(
@@ -80,6 +81,18 @@ def create_story(
 
     return job # This is what I actually returning to the frontend
 
+"""
+# In story.py:
+@router.post("/create")
+def create_story(db: Session = Depends(get_db)):
+    # FastAPI calls get_db()
+    # get_db() yields the session
+    # db now has the session ← Here!
+    db.add(job)
+    db.commit()
+    # After endpoint finishes, finally block runs
+"""
+
 def generate_story_task(job_id: str, theme: str, session_id: str):
     # We need to create a new database session when user reqeusts, because one session can tell users that it is process and the other can do some the background task running in a different thread. Once the background task is completed, we need to update the job status in the database, so that the frontend can check the status of the job and get the story when it is completed. If we use the same database session, we will have some hanging operations where the background task in running and it's using the database, the API will not be able to use the database at the same time. It is a asynchronous task, so we need to create a new database session for it.
     db = SessionLocal() # Thread 2: background thread -> SEPERATE session!
@@ -96,9 +109,9 @@ def generate_story_task(job_id: str, theme: str, session_id: str):
             job.status = "processing" # since the job exists, just modify existing data and then use commit() to save the changes to the database.
             db.commit() # Thread 2 independently manages its own transaction
             
-            story = {} # TODO: generate a story
+            story = StoryGenerator.generate_story(db, session_id, theme)
             
-            job.story_id = 1 # TODO: update story id
+            job.story_id = story.id
             job.status = "completed"
             job.completed_at = datetime.now()
             db.commit()
@@ -116,8 +129,29 @@ def get_complete_story(story_id: int, db: Session = Depends(get_db)):
     if not story:
         raise HTTPException(status_code=404, detail="Story not found")
 
-    #TODO: parse story
-    return story
+    complete_story = build_complete_story_tree(db, story)
+    return complete_story
 
 def build_complete_story_tree(db: Session,story: Story) -> CompleteStoryResponse:
-    pass
+    nodes = db.query(StoryNode).filter(StoryNode.story_id == story.id).all()
+    
+    node_dict = {}
+    for node in nodes:
+        node_response = CompleteStoryNodeResponse(
+            id=node.id,
+            content=node.content,
+            is_ending=node.is_ending,
+            is_winning_ending=node.is_winning_ending,
+            options=[]
+        )
+        node_dict[node.id] = node_response
+    root_node = next((node for node in nodes if node.is_root), None)
+    if not root_node:
+        raise HTTPException(status_code=500, detail="Root node not found") # internal server error, because this should not happen if the story is generated correctly
+    return CompleteStoryResponse(
+        id=story.id,
+        title=story.title,
+        session_id=story.session_id,
+        created_at=story.created_at,
+        root_nodes=node_dict[root_node.id],
+        all_nodes=node_dict)

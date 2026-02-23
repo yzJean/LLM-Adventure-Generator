@@ -19,6 +19,7 @@ The backend checks the status of the job and returns the result to the frontend.
 If job is done, backend can send story.
 """
 
+# table inherited from Base
 class StoryJob(Base):
     __tablename__ = "story_jobs"
 

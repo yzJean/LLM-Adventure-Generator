@@ -8,6 +8,7 @@ from sqlalchemy.orm import relationship
 
 from db.database import Base
 
+# table inherited from Base
 class Story(Base):
     __tablename__ = "stories"
 
@@ -22,6 +23,7 @@ class Story(Base):
     # referece to StoryNode model
     nodes = relationship("StoryNode", back_populates="story") # define a relationship between the Story and StoryNode models. This allows us to easily access the nodes associated with a story by using the nodes attribute of the Story model. The back_populates parameter is used to specify the name of the attribute in the StoryNode model that will be used to access the related Story object, which is defined as story in the StoryNode model. This relationship allows us to easily navigate between stories and their associated nodes in our application.
 
+# table inherited from Base
 class StoryNode(Base):
     __tablename__ = "story_nodes"
     id = Column(Integer, primary_key=True, index=True)

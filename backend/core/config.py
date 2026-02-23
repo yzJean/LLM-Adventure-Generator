@@ -14,8 +14,7 @@ class Settings(BaseSettings):
     @field_validator("ALLOWED_ORIGINS")
     def parse_allowed_origins(cls, v: str) -> List[str]:
         return v.split(",") if v else []
-    
-    # TODO: Why decide this here?
+
     class Config:
         env_file = ".env" # specify the .env file to load environment variables from
         env_file_encoding = "utf-8" # specify the encoding of the .env file
