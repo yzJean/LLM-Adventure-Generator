@@ -39,7 +39,7 @@ def create_story(
 ):
     response.set_cookie(key="session_id", value=session_id, httponly=True) # The server sets the session_id in the cookie, so that the browser can store it and send it back in subsequent requests
 
-    job_id = str(uuid.uuid4()) # Generate a unique job id for this story creation task.
+    job_id = str(uuid.uuid4()) # Generate a unique job id for this story creation task. The type should be aligned with the one declared in StoryJobResponse.
     job = StoryJob(
         job_id=job_id,
         session_id=session_id,
