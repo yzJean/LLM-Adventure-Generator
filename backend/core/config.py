@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     ALLOWED_ORIGINS: str = ""
     OPENAI_API_KEY: str
-    
+    GEMINI_API_KEY: str
     # parse the ALLOWED_ORIGINS string from the .env file into a list of origins because .env doesn't support list type, so we need to parse it manually. The field_validator decorator is used to define a validation function for the ALLOWED_ORIGINS field. This function takes the string value from the .env file, splits it by commas, and returns a list of origins. If the string is empty, it returns an empty list. This allows us to easily manage CORS settings in our application by simply updating the ALLOWED_ORIGINS variable in the .env file.
     @field_validator("ALLOWED_ORIGINS")
     def parse_allowed_origins(cls, v: str) -> List[str]:

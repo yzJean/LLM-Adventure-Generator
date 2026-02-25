@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from core.config import settings
 
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 
@@ -15,7 +16,7 @@ class StoryGenerator:
 
     @classmethod
     def _get_llm(cls): # In Python, with a prefix underscore, it is a private method in this class
-        return ChatOpenAI(model="gpt-4o")
+        return ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
     @classmethod
     def generate_story(cls, db: Session, session_id: str, theme: str = "fantasy") -> Story:
@@ -71,7 +72,7 @@ class StoryGenerator:
                         content=node_data.content if hasattr(node_data, "content") else node_data["content"],
                         is_root=is_root,
                         is_ending=node_data.isEnding if hasattr(node_data, "isEnding") else node_data["isEnding"],
-                        is_winning_ending=node_data.isWinningEnding if hasattr(node_data, "isWinningEnding") else node_data["isWinningEnding"],
+                        is_winning=node_data.isWinningEnding if hasattr(node_data, "isWinningEnding") else node_data["isWinningEnding"],
                         options=[])
         db.add(node)
         db.flush()
