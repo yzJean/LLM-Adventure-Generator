@@ -142,7 +142,7 @@ def build_complete_story_tree(db: Session,story: Story) -> CompleteStoryResponse
             content=node.content,
             is_ending=node.is_ending,
             is_winning_ending=node.is_winning,
-            options=[]
+            options=node.options if node.options else []
         )
         node_dict[node.id] = node_response
     root_node = next((node for node in nodes if node.is_root), None)
