@@ -76,7 +76,6 @@ function StoryGenerator() {
         }
     }
 
-    // function
     const reset = () => {
         setJobId(null);
         setJobStatus(null);

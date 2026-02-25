@@ -13,8 +13,9 @@ function StoryLoader() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        // Execute callback: loadStory(): Fetch the story from backend when this component mounts or when the id parameter changes.
         loadStory(id);
-    }, [id]);
+    }, [id]); // The dependency array [id] tells React: "Re-run this effect whenever id changes".
 
     // function to load story by id
     const loadStory = async(storyId) => {
@@ -24,6 +25,22 @@ function StoryLoader() {
         try { // send a request to the backend to get the story data
             const response = await axios.get(`${API_BASE_URL}/stories/${storyId}/complete`);
             setStory(response.data);
+            // response is the axios wrapper:
+            // response = {
+            //   status: 200,
+            //   data: { ... }, ← CompleteStoryResponse fields
+            //   ...
+            // }
+
+            // response.data is the actual story:
+            // response.data = {
+            //   id: 1,
+            //   title: "...",
+            //   created_at: "...",
+            //   root_nodes: {...},
+            //   all_nodes: {...}
+            // }
+
             setLoading(false);
         } catch (err) {
             if (err.response?.status == 404) {
